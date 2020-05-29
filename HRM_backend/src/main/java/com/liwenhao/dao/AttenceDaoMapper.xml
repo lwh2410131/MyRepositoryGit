@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.liwenhao.dao.AttenceDao">
+	<select id="selectAttenceByCondition" resultType="map" parameterType="map">
+		select r.name,a.* from sys_role as r,conn_role_attence as conn,sys_attence as a
+		where r.id = conn.r_id
+		and a.id = conn.a_id
+		<if test="name != null ">
+			AND r.name like '%${name}%'	
+		</if>
+		<if test="beginDate != null">
+			AND a.date <![CDATA[>= ]]> #{beginDate}		
+		</if>
+		<if test="endDate != null">
+			AND a.date <![CDATA[<= ]]> #{endDate}          
+		</if>
+		and r.isDel = 0 
+		and a.isDel = 0 
+		ORDER BY a.id
+		LIMIT #{start},#{pageSize}
+	</select>
+	
+	<select id="selectAttenceByConditionCount" resultType="int">
+		SELECT count(1)
+		from sys_role as r,conn_role_attence as conn,sys_attence as a
+		where r.id = conn.r_id
+		and a.id = conn.a_id
+		<if test="name != null ">
+			AND r.name like '%${name}%'	
+		</if>
+		<if test="beginDate != null">
+			AND a.date <![CDATA[>= ]]> #{beginDate}		
+		</if>
+		<if test="endDate != null">
+			AND a.date <![CDATA[<= ]]> #{endDate}          
+		</if>
+		and r.isDel = 0 
+		and a.isDel = 0 
+		ORDER BY a.id
+		LIMIT #{start},#{pageSize}
+	</select>
+	
+	<insert id="insertAttence" useGeneratedKeys="true" keyProperty="id">
+		INSERT into sys_attence
+        (
+        attence,
+        description,
+        checker,
+        date
+        )
+        VALUES
+        (
+		#{attence},
+		#{description},
+		#{checker},
+        now()
+        )
+	</insert>
+	
+	<insert id="insertAttenceConn" useGeneratedKeys="true" keyProperty="id">
+		INSERT into conn_role_attence
+        (
+	        r_id,
+	        a_id
+        )
+        VALUES
+        (
+			(SELECT id FROM sys_role where name=#{name}),
+			#{a_id}
+        )
+	</insert>
+</mapper>
+

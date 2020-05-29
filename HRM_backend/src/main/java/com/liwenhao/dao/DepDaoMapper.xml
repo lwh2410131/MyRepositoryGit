@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.liwenhao.dao.DepDao">
+	<select id="findDepByAccount" resultType="map" parameterType="map">
+		select sys_dep.* 
+		from sys_account,conn_role_account,sys_role,conn_role_dep,sys_dep
+		where 
+		sys_account.id = conn_role_account.a_id 
+		and sys_role.id = conn_role_account.r_id   
+		AND sys_dep.id = conn_role_dep.d_id
+		and sys_role.id = conn_role_dep.r_id
+		and sys_role.isDel =0   
+        and  sys_account.username = #{username}
+	</select>
+	
+	<select id="selectDepByCondition" resultType="map" parameterType="map">
+		select * from sys_dep where isDel = 0
+		<if test="dep != null ">
+			AND dep like '%${dep}%'	
+		</if>
+		<if test="address != null ">
+			AND address like '%${address}%'	
+		</if>
+		<if test="manager != null ">
+			AND manager like '%${manager}%'	
+		</if>
+		ORDER BY id
+		LIMIT #{start},#{pageSize}
+	</select>
+	
+	<select id="selectDepByConditionCount" resultType="int">
+		select count(1) from sys_dep where isDel = 0
+		<if test="dep != null ">
+			AND dep like '%${dep}%'	
+		</if>
+		<if test="address != null ">
+			AND address like '%${address}%'	
+		</if>
+		<if test="manager != null ">
+			AND manager like '%${manager}%'	
+		</if>
+		ORDER BY id
+		LIMIT #{start},#{pageSize}
+	</select>
+	
+	
+  	<update id="update">
+        UPDATE 	sys_dep
+        <trim prefix="set" suffixOverrides=",">
+            <if test="telephone != null">	telephone = #{telephone},</if>					
+            <if test="manager != null">	manager = #{manager},</if>							
+        </trim>
+        WHERE 	id = #{id}
+    </update>
+    
+</mapper>

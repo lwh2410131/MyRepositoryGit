@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.liwenhao.dao.RoleDao">
+	<select id="findRoleByAccount" resultType="map" parameterType="map">
+		select r.* 
+		from sys_account as a,conn_role_account as conn,sys_role as r
+		where a.id = conn.a_id 
+		and r.id = conn.r_id   
+		and r.isDel =0   
+		<if test="username != null">
+            and  a.username = #{username}
+        </if>
+	</select>
+	
+	<select id="selectRoleByCondition" resultType="map" parameterType="map">
+		select r.*,d.dep from sys_role as r LEFT JOIN conn_role_dep as conn
+		on r.id = conn.r_id
+		LEFT JOIN sys_dep as d 
+		on d.id = conn.d_id 
+		WHERE r.isDel = 0
+		<if test="name != null ">
+			AND r.name like '%${name}%'	
+		</if>
+		<if test="address != null ">
+			AND r.address like '%${address}%'	
+		</if>
+		ORDER BY r.id
+		LIMIT #{start},#{pageSize}
+	</select>
+	
+	<select id="selectRoleByConditionCount" resultType="int">
+		select count(1)
+		from sys_role as r LEFT JOIN conn_role_dep as conn
+		on r.id = conn.r_id
+		LEFT JOIN sys_dep as d 
+		on d.id = conn.d_id 
+		WHERE r.isDel = 0
+		<if test="name != null ">
+			AND r.name like '%${name}%'	
+		</if>
+		<if test="address != null ">
+			AND r.address like '%${address}%'	
+		</if>
+		ORDER BY r.id
+		LIMIT #{start},#{pageSize}
+	</select>
+	
+	<insert id="insertRole" useGeneratedKeys="true" keyProperty="id">
+		INSERT into sys_role
+        (
+        name,
+        address,
+        phone,
+        identity,
+        age,
+        job,
+        email
+        )
+        VALUES
+        (
+        #{name},
+		#{address},
+		#{phone},
+		#{identity},
+		#{age},
+		#{job},
+		#{email}
+        )
+	</insert>
+	
+	<insert id="insertRoleToDep" useGeneratedKeys="true" keyProperty="id">
+		INSERT into conn_role_dep
+        (
+	        r_id,
+	        d_id
+        )
+        VALUES
+        (
+        	#{r_id},
+			(SELECT id FROM sys_dep where dep=#{dep})
+        )
+	</insert>
+</mapper>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.liwenhao.dao.EntryDao">
+	<select id="selectEntryByCondition" resultType="map" parameterType="map">
+		select * from dlc_entry
+		where isDel = 0
+		<if test="name != null ">
+			and name like '%${name}%'	
+		</if>
+		ORDER BY id
+		LIMIT #{start},#{pageSize}
+	</select>
+	
+	<select id="selectEntryByConditionCount" resultType="int">
+		select count(1) from dlc_entry
+		where isDel = 0
+		<if test="name != null ">
+			and name like '%${name}%'	
+		</if>
+		ORDER BY id
+		LIMIT #{start},#{pageSize}
+	</select>
+	
+	<insert id="insertEntry" useGeneratedKeys="true" keyProperty="id">
+		INSERT into dlc_entry
+        (
+        name,
+        phone,
+        role,
+        description,
+        date
+        )
+        VALUES
+        (
+        #{name},
+		#{phone},
+		#{role},
+		#{description},
+        now()
+        )
+	</insert>
+	
+	<update id="deleteEntry">
+        UPDATE dlc_entry
+        SET
+        isDel = 1				
+        WHERE id
+        IN
+        <foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+            #{item.id}
+        </foreach>
+
+    </update>
+	
+</mapper>
